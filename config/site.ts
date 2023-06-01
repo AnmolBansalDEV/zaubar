@@ -7,12 +7,10 @@ export const siteConfig = {
   mainNav: [
     {
       title: "chat",
-      href: "/",
+      href: "/chat",
     },
   ],
   links: {
-    twitter: "https://twitter.com/shadcn",
-    github: "https://github.com/shadcn/ui",
-    docs: "https://ui.shadcn.com",
+    github: "https://github.com/AnmolBansalDEV/zaubar",
   },
 }

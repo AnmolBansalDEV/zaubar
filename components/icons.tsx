@@ -15,7 +15,7 @@ export const Icons = {
   logo: (props: LucideProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 190.000000 150.000000"
+      viewBox="0 0 280.000000 150.000000"
       preserveAspectRatio="xMidYMid meet"
       {...props}
     >
