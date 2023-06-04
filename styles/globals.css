@@ -78,4 +78,14 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  ::-moz-selection {
+    color: white;
+    background: hsl(304,92%,60%);
+  }
+
+  ::selection {
+    color: white;
+    background: hsl(304,92%,60%);
+  }
 }
+

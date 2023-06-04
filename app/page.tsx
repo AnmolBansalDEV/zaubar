@@ -19,8 +19,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Icons } from "@/components/icons"
+import { useRouter } from "next/navigation"
 
 export default function IndexPage() {
+  const router = useRouter()
   const formSchema = z.object({
     characterName: z.string().min(3, { message: "Character Name is required" }),
     characterAppearance: z.string().optional(),
@@ -29,12 +31,31 @@ export default function IndexPage() {
   })
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      characterName: "",
+      characterAppearance: "",
+      location: "",
+      situation: "",
+    },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    const res = await fetch("/api/createCharacter", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        formData: values,
+      }),
+    });
+    if (res.status !== 200) {
+      throw new Error(`Response status: ${res.statusText}`);
+    }
     console.log(values)
+    router.push("/chat")
   }
 
   return (
@@ -47,7 +68,7 @@ export default function IndexPage() {
           of Historical Characters
         </h1>
       </div>
-      <div className="flex mt-7 max-w-[980px] items-center gap-2">
+      <div className="mt-7 flex max-w-[980px] items-center gap-2">
         <div className="flex flex-col items-center gap-4">
           <h4 className="text-center text-base">
             Chat with Randomly Generated
