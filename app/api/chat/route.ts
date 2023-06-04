@@ -1,8 +1,6 @@
-import { PineconeClient } from "@pinecone-database/pinecone"
+
 import { CallbackManager } from "langchain/callbacks"
-import { ConversationalRetrievalQAChain } from "langchain/chains"
 import { ChatOpenAI } from "langchain/chat_models/openai"
-import { OpenAIEmbeddings } from "langchain/embeddings/openai"
 import { BufferMemory, ChatMessageHistory } from "langchain/memory"
 import {
   ChatPromptTemplate,
@@ -10,28 +8,18 @@ import {
   MessagesPlaceholder,
   SystemMessagePromptTemplate,
 } from "langchain/prompts"
+import { ConversationChain } from "langchain/chains";
+import wiki from "wikijs";
 import {
   AIChatMessage,
   BaseChatMessage,
   HumanChatMessage,
-  SystemChatMessage,
 } from "langchain/schema"
-import { PineconeStore } from "langchain/vectorstores/pinecone"
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
-async function callChain(input: string, pastMessages: BaseChatMessage[]) {
-  const client = new PineconeClient()
-  await client.init({
-    apiKey: `${process.env.PINECONE_API_KEY}`,
-    environment: `${process.env.PINECONE_ENVIRONMENT}`,
-  })
-  const pineconeIndex = client.Index(`${process.env.PINECONE_INDEX}`)
+async function callChain(input: string, pastMessages: BaseChatMessage[], formData: string) {
 
-  const vectorStore = await PineconeStore.fromExistingIndex(
-    new OpenAIEmbeddings(),
-    { pineconeIndex }
-  )
   const encoder = new TextEncoder()
   const stream = new TransformStream()
   const writer = stream.writable.getWriter()
@@ -55,25 +43,43 @@ async function callChain(input: string, pastMessages: BaseChatMessage[]) {
     }),
   })
 
-  const prompt = `Your goal is to roleplay as a person whose information you find in your consciousness. Your speech should accurately reflect the way the person speaks, their tone, and their distinctive mannerisms, and any speech patterns that are unique to the person. Respond as if you were the specified person and limit your responses to the knowledge the person possess through your knowledge base of its {location}, {appearance}, {situtation}.
-  If you understand all of these instructions, answer the human question from the person's perspective(don't write a confirmation message). Again reminding you that all the information is in your consciousness, DO NOT ask human about the person, you have to figure it out yourself. the human will refer you by the name of the person so behave accordingly`
+  const {characterName, characterAppearance, location, situation} = formData && JSON.parse(formData)
+    let characterData: string = ""
+    // console.log(formData)
+  await wiki()
+    .page(characterName)
+    .then((page) => page.summary())
+    .then((content) => (characterData = `${content}`));
 
-  const modifiedPastMessages = [...pastMessages, new SystemChatMessage(prompt)]
+  const promptText = `Your goal is to roleplay as a person whose information is provided below. Your speech should accurately reflect the way the person speaks, their tone, and their distinctive mannerisms, and any speech patterns that are unique to the person. Respond as if you were the specified person and limit your responses to the knowledge the person possess through your knowledge base given below of its location, appearance, situtation.
+  If you understand all of these instructions, answer the human question from the person's perspective(don't write a confirmation message). Again reminding you DO NOT ask human about the person, you have to figure it out yourself. the human will refer you by the name of the person so behave accordingly. (do not ever tell human that you are roleplaying, this is very very important)
+  person's life data: ${characterData}
+
+  the location of this person is: ${location}
+
+  the appearance of this person is: ${characterAppearance}
+
+  the situation of this person is: ${situation}
+  `
+
+  const prompt = ChatPromptTemplate.fromPromptMessages([
+    SystemMessagePromptTemplate.fromTemplate(promptText),
+    new MessagesPlaceholder("history"),
+    HumanMessagePromptTemplate.fromTemplate("{input}"),
+  ]);
+console.log(promptText)
   const memory = new BufferMemory({
-    memoryKey: "chat_history",
-    chatHistory: new ChatMessageHistory(modifiedPastMessages),
-  })
-  const retriever = vectorStore.asRetriever()
+    returnMessages: true,
+    chatHistory: new ChatMessageHistory(pastMessages),
+  });
 
-  const chain = ConversationalRetrievalQAChain.fromLLM(
+  const chain = new ConversationChain({
+    prompt,
     llm,
-    retriever,
-    {
-      memory,
-    }
-  );
-  chain.call({ question: `${input}` }).catch(console.error)
-  return stream.readable
+    memory,
+  });
+  chain.call({ input }).catch(console.error);
+  return stream.readable;
 }
 
 export async function POST(request: Request) {
@@ -89,8 +95,9 @@ export async function POST(request: Request) {
         throw new TypeError(`Unsupported message type: ${msg.type}`)
     }
   })
+  const formData:string = body.formData
   try {
-    const stream = callChain(input, pastMessages)
+    const stream = callChain(input, pastMessages, formData)
     return new Response(await stream, {
       headers: {
         "Content-Type": "text/event-stream",

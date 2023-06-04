@@ -34,6 +34,7 @@ const Chatbox:FC = () => {
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
+      const formData = sessionStorage.getItem("formData")
       try {
         setCanSend(false);
         const res = await fetch("/api/chat", {
@@ -44,6 +45,7 @@ const Chatbox:FC = () => {
           body: JSON.stringify({
             input,
             pastMessages,
+            formData
           }),
         });
         if (res.status !== 200) {
@@ -106,9 +108,10 @@ const Chatbox:FC = () => {
   const magicFunc = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
+      const formData = sessionStorage.getItem("formData")
       try {
         setCanSend(false);
-        const magicPrompt = "Tell me anything, related to your character or the location. It should be interesting";
+        const magicPrompt = "Tell me something interesting";
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: {
@@ -117,6 +120,7 @@ const Chatbox:FC = () => {
           body: JSON.stringify({
             magicPrompt,
             pastMessages,
+            formData
           }),
         });
         if (res.status !== 200) {

@@ -5,8 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { MessageCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-
-import { siteConfig } from "@/config/site"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Form,
@@ -42,18 +40,19 @@ export default function IndexPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    const res = await fetch("/api/createCharacter", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        formData: values,
-      }),
-    });
-    if (res.status !== 200) {
-      throw new Error(`Response status: ${res.statusText}`);
-    }
+    // const res = await fetch("/api/createCharacter", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     formData: values,
+    //   }),
+    // });
+    // if (res.status !== 200) {
+    //   throw new Error(`Response status: ${res.statusText}`);
+    // }
+    sessionStorage.setItem("formData", JSON.stringify(values))
     console.log(values)
     router.push("/chat")
   }
