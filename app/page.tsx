@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function IndexPage() {
-
+  const NEXT_PUBLIC_INFERENCE_API_AUTH = process.env.NEXT_PUBLIC_INFERENCE_API_AUTH;
   const { toast } = useToast()
   const router = useRouter()
   const formSchema = z.object({
@@ -50,7 +50,7 @@ export default function IndexPage() {
   const response = await fetch(
 		"https://api-inference.huggingface.co/models/SG161222/Realistic_Vision_V1.4",
 		{
-			headers: { Authorization: "Bearer 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" },
+			headers: { Authorization: `Bearer ${NEXT_PUBLIC_INFERENCE_API_AUTH}` },
 			method: "POST",
 			body: JSON.stringify(data),
 		}
@@ -80,7 +80,7 @@ export default function IndexPage() {
   const response = await fetch(
 		"https://api-inference.huggingface.co/models/SG161222/Realistic_Vision_V1.4",
 		{
-			headers: { Authorization: "Bearer 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" },
+			headers: { Authorization: `Bearer ${NEXT_PUBLIC_INFERENCE_API_AUTH}` },
 			method: "POST",
 			body: JSON.stringify(data),
 		}

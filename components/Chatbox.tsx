@@ -5,7 +5,7 @@ import { ScrollArea } from './ui/scroll-area'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip'
-import { ArrowRight, Wand2Icon } from 'lucide-react'
+import { ArrowRight, Wand2 } from 'lucide-react'
 import MessageBubble from './MessageBubble'
 import { MessageType } from "langchain/schema";
 
@@ -193,7 +193,7 @@ const Chatbox = ({url}: props) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button onClick={magicFunc} disabled={!canSend} className="w-10 bg-fuchsia-500 p-0 hover:bg-fuchsia-900">
-            <Wand2Icon className="h-4 w-4" />
+            <Wand2 className="h-4 w-4" />
             <span className="sr-only">tell me anything</span>
           </Button>
         </TooltipTrigger>

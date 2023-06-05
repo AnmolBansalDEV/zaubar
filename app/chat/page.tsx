@@ -3,11 +3,9 @@
 import Chatbox from '@/components/Chatbox'
 import React, { useState } from 'react'
 import Image from "next/image"
-import { AspectRatio } from "@/components/ui/aspect-ratio"
-
 
 export default function Chat() {
-  const [url, setUrl] = useState(sessionStorage.getItem("blobURL"))
+  const url = sessionStorage.getItem("blobURL")
   return (
     <div className='flex justify-around items-center'>
       {/* background and stable diffusion image goes here */}
