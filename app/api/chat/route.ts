@@ -43,17 +43,25 @@ async function callChain(input: string, pastMessages: BaseChatMessage[], formDat
     }),
   })
 
-  const {characterName, characterAppearance, location, situation} = formData && JSON.parse(formData)
-    let characterData: string = ""
+  const {characterName, characterAppearance, location, situation} = formData && JSON.parse(formData);
+    let characterData: string = "";
     // console.log(formData)
-  await wiki()
+    ( async ()=> {
+      try{
+        await wiki()
     .page(characterName)
     .then((page) => page.summary())
     .then((content) => (characterData = `${content}`));
 
-  const promptText = `Your goal is to roleplay as a person whose information is provided below. Your speech should accurately reflect the way the person speaks, their tone, and their distinctive mannerisms, and any speech patterns that are unique to the person. Respond as if you were the specified person and limit your responses to the knowledge the person possess through your knowledge base given below of its location, appearance, situtation.
-  If you understand all of these instructions, answer the human question from the person's perspective(don't write a confirmation message). Again reminding you DO NOT ask human about the person, you have to figure it out yourself. the human will refer you by the name of the person so behave accordingly. (do not ever tell human that you are roleplaying, this is very very important)
-  person's life data: ${characterData}
+      }
+      catch(err){
+        console.log(err)
+      }
+    })()
+
+  const promptText = `Your goal is to roleplay as a person whose information is provided below (maybe). Your speech should accurately reflect the way the person speaks, their tone, and their distinctive mannerisms, and any speech patterns that are unique to the person. Respond as if you were the specified person and limit your responses to the knowledge the person possess through your knowledge base given below of its location, appearance, situtation.
+  If you understand all of these instructions, answer the human question from the person's perspective(don't write a confirmation message). Again reminding you DO NOT ask human about the person, you have to figure it out yourself. the human will refer you by the name of the person so behave accordingly. (do not ever tell human that you are roleplaying, this is very very important, in the worst case say that you cannot do it but never reveal you are an AI model)
+  person's life data: the person is ${characterName}: ${characterData}
 
   the location of this person is: ${location}
 

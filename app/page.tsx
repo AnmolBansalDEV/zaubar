@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Random from "random.json"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { MessageCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -18,8 +18,11 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Icons } from "@/components/icons"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function IndexPage() {
+
+  const { toast } = useToast()
   const router = useRouter()
   const formSchema = z.object({
     characterName: z.string().min(3, { message: "Character Name is required" }),
@@ -40,20 +43,56 @@ export default function IndexPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    // const res = await fetch("/api/createCharacter", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     formData: values,
-    //   }),
-    // });
-    // if (res.status !== 200) {
-    //   throw new Error(`Response status: ${res.statusText}`);
-    // }
+    toast({
+      description: "Your character is being created.",
+    })
+    const data = {"inputs": `${values.characterName} photo of front profile, looking in the eye, doing ${values.situation} if possible ,serious eyes, (${values.characterAppearance}) 50mm colored photography, ((background removed)) hard rim lighting photography-beta -ar 2:3 -beta -upbeta -beta -upbeta -beta -upbeta`}
+  const response = await fetch(
+		"https://api-inference.huggingface.co/models/SG161222/Realistic_Vision_V1.4",
+		{
+			headers: { Authorization: "Bearer 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" },
+			method: "POST",
+			body: JSON.stringify(data),
+		}
+	);
+	const result = await response.blob();
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.statusText}`);
+    }
+    const url = URL.createObjectURL(result)
+
     sessionStorage.setItem("formData", JSON.stringify(values))
-    console.log(values)
+    sessionStorage.setItem("blobURL", url)
+    router.push("/chat")
+  }
+  async function randomGen(){
+
+    const values = {
+     characterName: Random[0].names[Math.floor(Math.random()* Random[0].names.length)],
+     location: Random[0].location[Math.floor(Math.random()* Random[0].location.length)],
+     characterAppearance: "",
+     situation: ""
+    }
+    toast({
+      description: "Your character is being created.",
+    })
+    const data = {"inputs": `${values.characterName} full body photo of front profile, looking in the eye, doing ${values.situation} if possible ,serious eyes, (${values.characterAppearance}) 50mm colored photography, ((background ${location})) hard rim lighting photography-beta -ar 2:3 -beta -upbeta -beta -upbeta -beta -upbeta`}
+  const response = await fetch(
+		"https://api-inference.huggingface.co/models/SG161222/Realistic_Vision_V1.4",
+		{
+			headers: { Authorization: "Bearer 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" },
+			method: "POST",
+			body: JSON.stringify(data),
+		}
+	);
+	const result = await response.blob();
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.statusText}`);
+    }
+    const url = URL.createObjectURL(result)
+
+    sessionStorage.setItem("formData", JSON.stringify(values))
+    sessionStorage.setItem("blobURL", url)
     router.push("/chat")
   }
 
@@ -74,10 +113,10 @@ export default function IndexPage() {
             <br className="hidden sm:inline" />
             Historical Characters
           </h4>
-          <Link href="/chat" className={buttonVariants({ variant: "default" })}>
+          <Button className="col-span-2 max-w-sm place-self-center" onClick={randomGen}>
             chat
             <MessageCircle className="ms-1 inline-block h-5 w-5" />
-          </Link>
+          </Button>
         </div>
         <Separator orientation="vertical" className="mx-8 h-52" />
         <Form {...form}>

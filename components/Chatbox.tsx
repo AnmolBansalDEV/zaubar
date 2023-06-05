@@ -1,6 +1,6 @@
 "use client"
 
-import React, { FC, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ScrollArea } from './ui/scroll-area'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
@@ -13,8 +13,10 @@ type Message =  {
   text: string;
   type: MessageType;
 }
-
-const Chatbox:FC = () => {
+type props = {
+  url: string | null,
+}
+const Chatbox = ({url}: props) => {
   const [input, setInput] = useState("")
   const [canSend, setCanSend] = useState(true);
   const chatboxRef = useRef<HTMLDivElement>(null);
@@ -118,7 +120,7 @@ const Chatbox:FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            magicPrompt,
+            input: magicPrompt,
             pastMessages,
             formData
           }),
@@ -161,11 +163,11 @@ const Chatbox:FC = () => {
 
 
   return (
-    <section className="absolute right-0 flex h-[500px] w-[300px] flex-col items-center justify-center rounded-md border">
+    <section className="flex h-[500px] w-[400px] flex-col items-center justify-center rounded-md border">
       <ScrollArea className="h-full w-full p-4">
         {/* messaages of ai and user goes here */}
         {hasHistory && pastMessages.map((message, index) => (
-        message.type === "ai" ? <MessageBubble key={index} isBot={true} message={message.text} /> :
+        message.type === "ai" ? <MessageBubble key={index} url={url} isBot={true} message={message.text} /> :
         <MessageBubble key={index} isBot={false} message={message.text} />
         ) )}
         <div ref={chatboxRef} />
