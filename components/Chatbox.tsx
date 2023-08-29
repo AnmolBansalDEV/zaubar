@@ -23,20 +23,20 @@ const Chatbox = ({url}: props) => {
   const [pastMessages, setPastMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const messages = window.sessionStorage.getItem("pastMessages");
+    const messages = localStorage.getItem("pastMessages");
     if (messages) {
       setPastMessages(JSON.parse(messages));
     }
-
   }, []);
+
   useEffect(() => {
-    window.sessionStorage.setItem("pastMessages", JSON.stringify(pastMessages));
+    localStorage.setItem("pastMessages", JSON.stringify(pastMessages));
   }, [pastMessages]);
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
-      const formData = sessionStorage.getItem("formData")
+      const formData = typeof window !== 'undefined' && localStorage.getItem("formData")
       try {
         setCanSend(false);
         const res = await fetch("/api/chat", {
@@ -110,7 +110,7 @@ const Chatbox = ({url}: props) => {
   const magicFunc = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
-      const formData = sessionStorage.getItem("formData")
+      const formData = typeof window !== 'undefined' && localStorage.getItem("formData")
       try {
         setCanSend(false);
         const magicPrompt = "Tell me something interesting";
@@ -164,7 +164,7 @@ const Chatbox = ({url}: props) => {
 
   return (
     <section className="flex h-[500px] w-[400px] flex-col items-center justify-center rounded-md border">
-      <ScrollArea className="h-full w-full p-4">
+      <ScrollArea className="w-full h-full p-4">
         {/* messaages of ai and user goes here */}
         {hasHistory && pastMessages.map((message, index) => (
         message.type === "ai" ? <MessageBubble key={index} url={url} isBot={true} message={message.text} /> :
@@ -172,14 +172,14 @@ const Chatbox = ({url}: props) => {
         ) )}
         <div ref={chatboxRef} />
       </ScrollArea>
-      <form onSubmit={handleSubmit} className="flex w-full items-center justify-end gap-2 rounded-md border">
+      <form onSubmit={handleSubmit} className="flex items-center justify-end w-full gap-2 border rounded-md">
       <Input placeholder='type in your questions...' value={input} onChange={(e) => setInput(e.target.value)} className="w-2/3 border-none" />
 
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button disabled={isDisabled} className="w-10 p-0">
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="w-4 h-4" />
             <span className="sr-only">send</span>
           </Button>
         </TooltipTrigger>
@@ -192,8 +192,8 @@ const Chatbox = ({url}: props) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button onClick={magicFunc} disabled={!canSend} className="w-10 bg-fuchsia-500 p-0 hover:bg-fuchsia-900">
-            <Wand2 className="h-4 w-4" />
+          <Button onClick={magicFunc} disabled={!canSend} className="w-10 p-0 bg-fuchsia-500 hover:bg-fuchsia-900">
+            <Wand2 className="w-4 h-4" />
             <span className="sr-only">tell me anything</span>
           </Button>
         </TooltipTrigger>

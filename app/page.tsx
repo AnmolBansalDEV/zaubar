@@ -60,9 +60,10 @@ export default function IndexPage() {
       throw new Error(`Response status: ${response.statusText}`);
     }
     const url = URL.createObjectURL(result)
-
-    sessionStorage.setItem("formData", JSON.stringify(values))
-    sessionStorage.setItem("blobURL", url)
+    if(typeof window !== 'undefined'){
+      localStorage.setItem("formData", JSON.stringify(values))
+      localStorage.setItem("blobURL", url)
+    }
     router.push("/chat")
   }
   async function randomGen(){
@@ -90,9 +91,10 @@ export default function IndexPage() {
       throw new Error(`Response status: ${response.statusText}`);
     }
     const url = URL.createObjectURL(result)
-
-    sessionStorage.setItem("formData", JSON.stringify(values))
-    sessionStorage.setItem("blobURL", url)
+    if(typeof window !== 'undefined'){
+      localStorage.setItem("formData", JSON.stringify(values))
+      localStorage.setItem("blobURL", url)
+    }
     router.push("/chat")
   }
 
